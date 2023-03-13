@@ -35,7 +35,7 @@ def generate_word_addition(word):
     for diactric_origin in diactrics.values():
         letters_commands.append(f"(\'{diactric_origin}\')")
     result.append(insert_relations + ",".join(letters_commands) + ";")
-    # Query example: INSERT INTO Letter(symbol) VALUES('t'),('h'),('e');
+    # Query example: INSERT INTO Letter(unicode) VALUES('t'),('h'),('e');
     
     insert_relations = "INSERT INTO IsDiactricOf(diactric_letter_id,original_letter_id) SELECT "\
         "L1.letter_id AS diactric_letter_id, L2.letter_id AS original_letter_id FROM Letter AS L1 INNER JOIN Letter AS L2 where "
@@ -52,7 +52,7 @@ def generate_word_addition(word):
     
     result.append(
         f"INSERT INTO WordCore(word,length,last_letter_id) SELECT "\
-            f"\"{word}\", {len(word)}, T.letter_id FROM Letter AS T WHERE symbol = \'{word[-1]}\';"
+            f"\"{word}\", {len(word)}, T.letter_id FROM Letter AS T WHERE unicode = \'{word[-1]}\';"
     )
     
     insert_relations = "INSERT INTO Contains(word_id,letter_id) SELECT "\
