@@ -38,7 +38,7 @@ def generate_word_addition(word):
     # Query example: INSERT INTO Letter(unicode) VALUES('t'),('h'),('e');
     
     insert_relations = "INSERT INTO IsDiactricOf(diactric_letter_id,original_letter_id) SELECT "\
-        "L1.letter_id AS diactric_letter_id, L2.letter_id AS original_letter_id FROM Letter AS L1 INNER JOIN Letter AS L2 where "
+        "L1.letter_id AS diactric_letter_id, L2.letter_id AS original_letter_id FROM Letter AS L1 INNER JOIN Letter AS L2 WHERE "
     
     diactric_relations = []
     for diactric, origin in diactrics.items():
@@ -66,12 +66,12 @@ def generate_word_addition(word):
     # Query example: INSERT INTO Contains(word_id,letter_id) ... WHERE (W.word = 'la' and L.unicode = 'a');
 
     insert_relations = "INSERT INTO GoesAfter(letter_before_id, letter_after_id) SELECT "\
-        "L1.letter_id AS letter_before_id, L2.letter_id AS letter_after_id FROM Letter AS L1 INNER JOIN Letter AS L2 where "
+        "L1.letter_id AS letter_before_id, L2.letter_id AS letter_after_id FROM Letter AS L1 INNER JOIN Letter AS L2 WHERE "
         
     goes_after_relations = []
     for i in range(len(word) - 1):
         goes_after_relations.append(
-            f"(L1.unicode=\'{word[i]}\' and L2.unicode=\'{word[i + 1]}\')"
+            f"(L1.unicode=\'{word[i + 1]}\' and L2.unicode=\'{word[i]}\')"
         )
     result.append(insert_relations + " or ".join(goes_after_relations) + ";")
     # Query example: INSERT INTO Contains(word_id,letter_id) ... WHERE (L1.unicode = 'l' and L2.unicode = 'a');
