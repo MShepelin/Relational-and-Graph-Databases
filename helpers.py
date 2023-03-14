@@ -28,15 +28,17 @@ def generate_word_addition(word):
     
     result = ["BEGIN TRANSACTION;"]
     
-    insert_relations = "INSERT INTO Letter(unicode) VALUES"
     letters_commands = []
     for letter in word:
         letters_commands.append(f"(\'{letter}\')")
     for diactric_origin in diactrics.values():
         letters_commands.append(f"(\'{diactric_origin}\')")
-    result.append(insert_relations + ",".join(letters_commands) + ";")
-    # Query example: INSERT INTO Letter(unicode) VALUES('t'),('h'),('e');
+    result.append("WITH inputvalues(unicode) AS (VALUES" + ",".join(letters_commands) + ") "\
+        "INSERT INTO Letter(unicode) SELECT d.unicode FROM inputvalues AS d WHERE "\
+        "NOT EXISTS (SELECT 1 FROM Letter WHERE Letter.unicode = d.unicode);"
+    )
     
+    # TODO: make IsDiactricOf unique
     insert_relations = "INSERT INTO IsDiactricOf(diactric_letter_id,original_letter_id) SELECT "\
         "L1.letter_id AS diactric_letter_id, L2.letter_id AS original_letter_id FROM Letter AS L1 INNER JOIN Letter AS L2 WHERE "
     
@@ -50,11 +52,13 @@ def generate_word_addition(word):
     )
     # Query example: INSERT INTO IsDiactricOf(diactric_letter_id,original_letter_id) ... WHERE (L1.unicode = 'â' and L2.unicode = 'a');
     
+    # TODO: make WordCore unique
     result.append(
         f"INSERT INTO WordCore(word,length,last_letter_id) SELECT "\
             f"\"{word}\", {len(word)}, T.letter_id FROM Letter AS T WHERE unicode = \'{word[-1]}\';"
     )
     
+    # TODO: make Contains unique
     insert_relations = "INSERT INTO Contains(word_id,letter_id) SELECT "\
         "W.word_id, L.letter_id FROM WordCore AS W, Letter AS L WHERE "
     contains_relations = []

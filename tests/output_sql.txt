@@ -1,5 +1,5 @@
 BEGIN TRANSACTION;
-INSERT INTO Letter(unicode) VALUES('d'),('e'),('ç'),('à'),('c'),('a');
+WITH inputvalues(unicode) AS (VALUES('d'),('e'),('ç'),('à'),('c'),('a')) INSERT INTO Letter(unicode) SELECT d.unicode FROM inputvalues AS d WHERE NOT EXISTS (SELECT 1 FROM Letter WHERE Letter.unicode = d.unicode);
 INSERT INTO IsDiactricOf(diactric_letter_id,original_letter_id) SELECT L1.letter_id AS diactric_letter_id, L2.letter_id AS original_letter_id FROM Letter AS L1 INNER JOIN Letter AS L2 WHERE (L1.unicode='ç' and L2.unicode='c') or (L1.unicode='à' and L2.unicode='a');
 INSERT INTO WordCore(word,length,last_letter_id) SELECT "deçà", 4, T.letter_id FROM Letter AS T WHERE unicode = 'à';
 INSERT INTO Contains(word_id,letter_id) SELECT W.word_id, L.letter_id FROM WordCore AS W, Letter AS L WHERE (W.word='deçà' and L.unicode='d') or (W.word='deçà' and L.unicode='e') or (W.word='deçà' and L.unicode='ç') or (W.word='deçà' and L.unicode='à');
