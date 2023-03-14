@@ -1,1 +1,1 @@
-pytest ./tests/test_sql_generation.py
+pytest ./tests/test_generation.py

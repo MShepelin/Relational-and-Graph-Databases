@@ -79,3 +79,58 @@ def generate_word_addition(word):
     result.append("END TRANSACTION;")
     
     return "\n".join(result)
+
+def append_array_with_space(result, string):
+    additional_space = "  "
+    result.append(additional_space + string)
+
+# Generates an Cypher query that inserts data about french word 
+def generate_graph_word_addition(word):
+    result = []
+    
+    # Find diactrics to ensure that they are inserted in Letter table
+    diactrics = {}
+    for letter in word:
+        diactric_origin = find_diactric_origin(letter)
+        if diactric_origin is not None:
+            diactrics[letter] = diactric_origin
+    
+    # Step 1. Merge data so that all letter, diatric origins and words are present
+    merging_command = []
+    
+    append_array_with_space(merging_command, f"({word}:WordCore {{word:\'{word}\', length:{len(word)}}})")
+    # Query example: (deçà:WordCore {word: 'deçà', length:4})
+    for letter in word:
+        append_array_with_space(merging_command, f"({letter}:Letter {{unicode:\'{letter}\'}})")
+        # Query example: (a:Letter {unicode:'a'})
+    for diactric_origin in diactrics.values():
+        append_array_with_space(merging_command, f"({diactric_origin}:Letter {{unicode:\'{diactric_origin}\'}})")
+    
+    result.append("MERGE\n" + ",\n".join(merging_command))
+    
+    # Step 2. Add connections while preserving their uniqueness in some cases
+    # Create unique EndsWith relations
+    result.append(f"MATCH (word:WordCore WHERE word.word=\'{word}\'), "\
+        f"(letter:Letter WHERE letter.unicode=\'{word[-1]}\') MERGE (word)-[:EndsWith]->(letter)"
+    )
+    
+    # Create unique Contains relations
+    for letter in word:
+        result.append(f"MATCH ({word}:WordCore WHERE {word}.word=\'{word}\'), "\
+            f"({letter}:Letter WHERE {letter}.unicode=\'{letter}\') MERGE ({word})<-[:Contains]->({letter})"
+        )
+    
+    # Create non-unique GoesAfter relations 
+    for i in range(len(word) - 1):
+        result.append(f"MATCH ({word[i]}:Letter WHERE {word[i]}.letter=\'{word[i]}\'), "\
+            f"({word[i + 1]}:Letter WHERE {word[i + 1]}.letter=\'{word[i + 1]}\')"\
+            f"CREATE ({word[i + 1]})-[:GoesAfter]->({word[i]})"
+        )
+        
+    # Create unique diactric relations
+    for diactric, origin in diactrics.items():
+        result.append(f"MATCH ({diactric}:WordCore WHERE {diactric}.unicode=\'{diactric}\'), "\
+            f"({origin}:Letter WHERE {origin}.unicode=\'{origin}\') MERGE ({diactric})-[:IsDiactricOf]->({origin})"
+        )
+    
+    return ";\n".join(result)

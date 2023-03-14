@@ -1,0 +1,5 @@
+CREATE CONSTRAINT UniqueLetters
+FOR (a:Letter) REQUIRE a.unicode IS UNIQUE;
+CREATE CONSTRAINT UniqueWords
+FOR (a:WordCore) REQUIRE a.word IS UNIQUE
+// More contraints can be added the same way
