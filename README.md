@@ -10,7 +10,7 @@
 
 1. ER-диаграмма и диаграмма отношений (2 балла)
 
-   ![Diagrams](C:\Users\shepe\PythonProj\PSem\Diagrams.png)
+   ![Diagrams](./Diagrams.png)
 
 2. Реализация наполнения баз реляционной БД и графовой БД (2 балла)
 
