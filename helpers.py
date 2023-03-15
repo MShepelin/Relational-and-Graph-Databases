@@ -99,18 +99,14 @@ def generate_graph_word_addition(word):
         if diactric_origin is not None:
             diactrics[letter] = diactric_origin
     
-    # Step 1. Merge data so that all letter, diatric origins and words are present
-    merging_command = []
-    
-    append_array_with_space(merging_command, f"({word}:WordCore {{word:\'{word}\', length:{len(word)}}})")
-    # Query example: (deçà:WordCore {word: 'deçà', length:4})
+    # Step 1. Merge data so that all letter, diatric origins and words are present    
+    result.append(f"MERGE ({word}:WordCore {{word:\'{word}\', length:{len(word)}}})")
+    # Query example: MERGE (deçà:WordCore {word: 'deçà', length:4})
     for letter in word:
-        append_array_with_space(merging_command, f"({letter}:Letter {{unicode:\'{letter}\'}})")
-        # Query example: (a:Letter {unicode:'a'})
+        result.append(f"MERGE ({letter}:Letter {{unicode:\'{letter}\'}})")
+        # Query example: MERGE (a:Letter {unicode:'a'})
     for diactric_origin in diactrics.values():
-        append_array_with_space(merging_command, f"({diactric_origin}:Letter {{unicode:\'{diactric_origin}\'}})")
-    
-    result.append("MERGE\n" + ",\n".join(merging_command))
+        result.append(f"MERGE ({diactric_origin}:Letter {{unicode:\'{diactric_origin}\'}})")
     
     # Step 2. Add connections while preserving their uniqueness in some cases
     # Create unique EndsWith relations
@@ -126,8 +122,8 @@ def generate_graph_word_addition(word):
     
     # Create non-unique GoesAfter relations 
     for i in range(len(word) - 1):
-        result.append(f"MATCH ({word[i]}:Letter WHERE {word[i]}.letter=\'{word[i]}\'), "\
-            f"({word[i + 1]}:Letter WHERE {word[i + 1]}.letter=\'{word[i + 1]}\')"\
+        result.append(f"MATCH ({word[i]}:Letter WHERE {word[i]}.unicode=\'{word[i]}\'), "\
+            f"({word[i + 1]}:Letter WHERE {word[i + 1]}.unicode=\'{word[i + 1]}\') "\
             f"CREATE ({word[i + 1]})-[:GoesAfter]->({word[i]})"
         )
         

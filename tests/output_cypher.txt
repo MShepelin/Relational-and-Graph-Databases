@@ -1,18 +1,17 @@
-MERGE
-  (deçà:WordCore {word:'deçà', length:4}),
-  (d:Letter {unicode:'d'}),
-  (e:Letter {unicode:'e'}),
-  (ç:Letter {unicode:'ç'}),
-  (à:Letter {unicode:'à'}),
-  (c:Letter {unicode:'c'}),
-  (a:Letter {unicode:'a'});
+MERGE (deçà:WordCore {word:'deçà', length:4});
+MERGE (d:Letter {unicode:'d'});
+MERGE (e:Letter {unicode:'e'});
+MERGE (ç:Letter {unicode:'ç'});
+MERGE (à:Letter {unicode:'à'});
+MERGE (c:Letter {unicode:'c'});
+MERGE (a:Letter {unicode:'a'});
 MATCH (word:WordCore WHERE word.word='deçà'), (letter:Letter WHERE letter.unicode='à') MERGE (word)-[:EndsWith]->(letter);
 MATCH (deçà:WordCore WHERE deçà.word='deçà'), (d:Letter WHERE d.unicode='d') MERGE (deçà)<-[:Contains]->(d);
 MATCH (deçà:WordCore WHERE deçà.word='deçà'), (e:Letter WHERE e.unicode='e') MERGE (deçà)<-[:Contains]->(e);
 MATCH (deçà:WordCore WHERE deçà.word='deçà'), (ç:Letter WHERE ç.unicode='ç') MERGE (deçà)<-[:Contains]->(ç);
 MATCH (deçà:WordCore WHERE deçà.word='deçà'), (à:Letter WHERE à.unicode='à') MERGE (deçà)<-[:Contains]->(à);
-MATCH (d:Letter WHERE d.letter='d'), (e:Letter WHERE e.letter='e')CREATE (e)-[:GoesAfter]->(d);
-MATCH (e:Letter WHERE e.letter='e'), (ç:Letter WHERE ç.letter='ç')CREATE (ç)-[:GoesAfter]->(e);
-MATCH (ç:Letter WHERE ç.letter='ç'), (à:Letter WHERE à.letter='à')CREATE (à)-[:GoesAfter]->(ç);
+MATCH (d:Letter WHERE d.unicode='d'), (e:Letter WHERE e.unicode='e') CREATE (e)-[:GoesAfter]->(d);
+MATCH (e:Letter WHERE e.unicode='e'), (ç:Letter WHERE ç.unicode='ç') CREATE (ç)-[:GoesAfter]->(e);
+MATCH (ç:Letter WHERE ç.unicode='ç'), (à:Letter WHERE à.unicode='à') CREATE (à)-[:GoesAfter]->(ç);
 MATCH (ç:WordCore WHERE ç.unicode='ç'), (c:Letter WHERE c.unicode='c') MERGE (ç)-[:IsDiactricOf]->(c);
 MATCH (à:WordCore WHERE à.unicode='à'), (a:Letter WHERE a.unicode='a') MERGE (à)-[:IsDiactricOf]->(a)
